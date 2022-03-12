@@ -55,6 +55,7 @@ header{
   display: flex;
   background: black;
   border-radius: 16px;
+  border: 1px solid #a200d6;
   padding: 12px 20px;
   height: 99%;
   margin-right: 10%;
