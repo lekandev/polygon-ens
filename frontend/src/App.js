@@ -9,7 +9,7 @@ const TWITTER_HANDLE = 'lekandev';
 const TWITTER_LINK = `https://twitter.com/${TWITTER_HANDLE}`;
 // Add the domain you will be minting
 const tld = '.buidl';
-const CONTRACT_ADDRESS = '0xD2717F5815a7D29788875b77D85F2C83AdEC82a5';
+const CONTRACT_ADDRESS = '0x2F5502bA9C69E9688c92D5Ec02a93cD555EA5277';
 
 const App = () => {
 	const [currentAccount, setCurrentAccount] = useState('');

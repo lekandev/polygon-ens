@@ -31,11 +31,22 @@ contract Domains is ERC721URIStorage {
   // Checkout our new mapping! This will store values
   mapping(string => string) public records;
 
+  // Add this at the top of your contract next to the other mappings
+  mapping (uint => string) public names;
+
+  error Unauthorized();
+  error AlreadyRegistered();
+  error InvalidName(string name);
+
   // We make the contract "payable" by adding this to the constructor
   constructor(string memory _tld) ERC721("Buidl Name Service", "BNS") payable {
     owner = payable(msg.sender);
     tld = _tld;
     console.log("%s name service deployed", _tld);
+  }
+
+  function valid(string calldata name) public pure returns(bool) {
+    return StringUtils.strlen(name) >= 3 && StringUtils.strlen(name) <= 10;
   }
 
   // This function will give us the price of a domain based on length
@@ -54,7 +65,9 @@ contract Domains is ERC721URIStorage {
   // A register function that adds their names to our mapping
   function register(string calldata name) public payable {
     // Check that the name is unregistered (explained in notes)
-    require(domains[name] == address(0));
+    // require(domains[name] == address(0));
+    if (domains[name] != address(0)) revert AlreadyRegistered();
+    if (!valid(name)) revert InvalidName(name);
 
     uint _price = price(name);
 
@@ -98,6 +111,7 @@ contract Domains is ERC721URIStorage {
     _setTokenURI(newRecordId, finalTokenUri);
     domains[name] = msg.sender;
 
+    names[newRecordId] = name;
     _tokenIds.increment();
     console.log("%s has registered a domain!", msg.sender);
   }
@@ -109,7 +123,7 @@ contract Domains is ERC721URIStorage {
 
   function setRecord(string calldata name, string calldata record) public {
     // Check that the owner is the transaction sender
-    require(domains[name] == msg.sender);
+    if (msg.sender != domains[name]) revert Unauthorized();
     records[name] = record;
   }
 
@@ -131,5 +145,17 @@ contract Domains is ERC721URIStorage {
 	
 	  (bool success, ) = msg.sender.call{value: amount}("");
 	  require(success, "Failed to withdraw Matic");
+  }
+
+  // Add this anywhere in your contract body
+  function getAllNames() public view returns (string[] memory) {
+    console.log("Getting all names from contract");
+    string[] memory allNames = new string[](_tokenIds.current());
+    for (uint i = 0; i < _tokenIds.current(); i++) {
+      allNames[i] = names[i];
+      console.log("Name for token %d is %s", i, allNames[i]);
+    }
+
+    return allNames;
   }
 }
